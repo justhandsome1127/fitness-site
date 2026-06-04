@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #030712;
+}
+
+body {
+  background-color: #030712;
+  color: #f9fafb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Custom scrollbar for chart container */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 4px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #111827;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 2px;
+}

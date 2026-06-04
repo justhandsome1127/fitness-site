@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WeightEntry {
+  id        Int       @id @default(autoincrement())
+  dayNumber Int       @unique
+  weight    Float
+  note      String?
+  type      String    @default("normal") // normal | break | bulk
+  date      DateTime?
+}
+
+model DailyLog {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @unique @db.Date
+  exercises Json?
+  dietNote  String?
+  bodyNote  String?
+  photos    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
