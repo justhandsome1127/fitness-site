@@ -60,13 +60,14 @@ function InBodyStat({
 }
 
 export default async function HomePage() {
-  const [weights, recentLogs, inbody] = await Promise.all([
+  const [weights, recentLogs, inbody, settings] = await Promise.all([
     prisma.weightEntry.findMany({ orderBy: { dayNumber: 'asc' } }),
     prisma.dailyLog.findMany({
       orderBy: { date: 'desc' },
       take: 6,
     }),
     prisma.inBodyEntry.findMany({ orderBy: { date: 'asc' } }),
+    prisma.settings.findUnique({ where: { id: 1 } }),
   ])
 
   const inbodyPoints: InBodyPoint[] = inbody.map((e) => ({
@@ -88,9 +89,18 @@ export default async function HomePage() {
   }))
 
   const latest = weights[weights.length - 1]
-  const first = weights[0]
-  const minEntry = weights.reduce((a, b) => (a.weight < b.weight ? a : b))
-  const lost = first ? (first.weight - (latest?.weight ?? first.weight)).toFixed(1) : '0'
+
+  // 堅持天數 = 最新一筆的 Day − 放縱日筆數
+  const breakDays = weights.filter((w) => w.type === 'break').length
+  const persistDays = latest ? latest.dayNumber - breakDays : 0
+
+  // 目前體脂:後台手動值優先,留空則帶最新 InBody
+  const bodyFatValue = settings?.bodyFat ?? latestInbody?.bodyFat ?? null
+
+  // 目標體重:與目前體重的差距
+  const goalWeight = settings?.goalWeight ?? null
+  const toGoal =
+    goalWeight != null && latest ? (latest.weight - goalWeight).toFixed(1) : null
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -111,20 +121,22 @@ export default async function HomePage() {
           color="text-blue-400"
         />
         <StatCard
-          label="最低體重"
-          value={`${minEntry.weight} kg`}
-          sub={`Day ${minEntry.dayNumber}`}
+          label="目標體重"
+          value={goalWeight != null ? `${goalWeight} kg` : '—'}
+          sub={toGoal != null ? `還差 ${toGoal} kg` : '後台可設定'}
           color="text-green-400"
         />
         <StatCard
-          label="此階段已減"
-          value={`${lost} kg`}
-          sub={`共 ${weights.length} 天`}
+          label="堅持天數"
+          value={`${persistDays} 天`}
+          sub={`放縱 ${breakDays} 天`}
+          color="text-amber-400"
         />
         <StatCard
-          label="訓練日誌"
-          value={`${recentLogs.length > 0 ? '更新中' : '開始記錄'}`}
-          sub="點選日誌查看細節"
+          label="目前體脂"
+          value={bodyFatValue != null ? `${bodyFatValue}%` : '—'}
+          sub={settings?.bodyFat != null ? '手動設定' : '最新 InBody'}
+          color="text-pink-400"
         />
       </section>
 

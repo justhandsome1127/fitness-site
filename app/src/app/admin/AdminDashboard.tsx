@@ -21,6 +21,33 @@ type WeightRow = {
   weight: number
   type: string
   note: string | null
+  date: string | null
+}
+type Settings = {
+  startDate: string
+  goalWeight: number | null
+  bodyFat: number | null
+}
+
+// Day N = 日期 − 起始日 + 1(UTC 相減)
+function dayNumberFromDate(dateStr: string, startDateIso: string): number | null {
+  if (!dateStr) return null
+  const d = new Date(`${dateStr}T00:00:00.000Z`)
+  const s = new Date(startDateIso)
+  const diff = Math.round(
+    (Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) -
+      Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate())) /
+      86_400_000
+  )
+  return diff + 1
+}
+
+// Day N → 日期字串(編輯舊資料、date 為空時用)
+function dateFromDayNumber(dayNumber: number, startDateIso: string): string {
+  const s = new Date(startDateIso)
+  const d = new Date(Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate()))
+  d.setUTCDate(d.getUTCDate() + dayNumber - 1)
+  return d.toISOString().slice(0, 10)
 }
 type InBodyRow = {
   id: number
@@ -44,19 +71,26 @@ const emptyDietItem = (meal: string = MEAL_OPTIONS[0]): DietFormItem => ({
   protein: '',
 })
 
+const DEFAULT_START = '2026-03-17T00:00:00.000Z'
+
 export function AdminDashboard({
   initialLogs,
   initialWeights,
   initialInbody,
+  initialSettings,
 }: {
   initialLogs: Log[]
   initialWeights: WeightRow[]
   initialInbody: InBodyRow[]
+  initialSettings: Settings | null
 }) {
   const [logs, setLogs] = useState(initialLogs)
   const [weights, setWeights] = useState(initialWeights)
   const [inbodyList, setInbodyList] = useState(initialInbody)
-  const [activeTab, setActiveTab] = useState<'log' | 'weight' | 'inbody'>('log')
+  const [settings, setSettings] = useState<Settings>(
+    initialSettings ?? { startDate: DEFAULT_START, goalWeight: null, bodyFat: null }
+  )
+  const [activeTab, setActiveTab] = useState<'log' | 'weight' | 'inbody' | 'settings'>('log')
 
   // Log form state
   const [editingLogDate, setEditingLogDate] = useState<string | null>(null)
@@ -71,11 +105,23 @@ export function AdminDashboard({
 
   // Weight form state
   const [editingWeightDay, setEditingWeightDay] = useState<number | null>(null)
-  const [wDay, setWDay] = useState('')
+  const [wDate, setWDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [wWeight, setWWeight] = useState('')
   const [wType, setWType] = useState('normal')
   const [wNote, setWNote] = useState('')
   const [wSaving, setWSaving] = useState(false)
+  const wDayNumber = dayNumberFromDate(wDate, settings.startDate)
+
+  // Settings form state
+  const [sStartDate, setSStartDate] = useState(settings.startDate.slice(0, 10))
+  const [sGoalWeight, setSGoalWeight] = useState(
+    settings.goalWeight != null ? String(settings.goalWeight) : ''
+  )
+  const [sBodyFat, setSBodyFat] = useState(
+    settings.bodyFat != null ? String(settings.bodyFat) : ''
+  )
+  const [sSaving, setSSaving] = useState(false)
+  const latestInbodyFat = inbodyList[0]?.bodyFat ?? null
 
   // InBody form state
   const [editingInbodyId, setEditingInbodyId] = useState<number | null>(null)
@@ -185,7 +231,7 @@ export function AdminDashboard({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        dayNumber: parseInt(wDay),
+        date: wDate,
         weight: parseFloat(wWeight),
         type: wType,
         note: wNote.trim() || null,
@@ -205,7 +251,7 @@ export function AdminDashboard({
         )
       )
       setEditingWeightDay(null)
-      setWDay('')
+      setWDate(format(new Date(), 'yyyy-MM-dd'))
       setWWeight('')
       setWNote('')
       setWType('normal')
@@ -216,7 +262,9 @@ export function AdminDashboard({
   function editWeight(w: WeightRow) {
     setActiveTab('weight')
     setEditingWeightDay(w.dayNumber)
-    setWDay(String(w.dayNumber))
+    setWDate(
+      w.date ? w.date.slice(0, 10) : dateFromDayNumber(w.dayNumber, settings.startDate)
+    )
     setWWeight(String(w.weight))
     setWType(w.type)
     setWNote(w.note ?? '')
@@ -337,10 +385,36 @@ export function AdminDashboard({
 
   function cancelWeightEdit() {
     setEditingWeightDay(null)
-    setWDay('')
+    setWDate(format(new Date(), 'yyyy-MM-dd'))
     setWWeight('')
     setWNote('')
     setWType('normal')
+  }
+
+  async function handleSettingsSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSSaving(true)
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        startDate: sStartDate,
+        goalWeight: sGoalWeight,
+        bodyFat: sBodyFat,
+      }),
+    })
+    setSSaving(false)
+    if (res.ok) {
+      const saved = await res.json()
+      setSettings({
+        startDate: saved.startDate,
+        goalWeight: saved.goalWeight,
+        bodyFat: saved.bodyFat,
+      })
+      alert('設定已儲存！')
+    } else {
+      alert('儲存失敗，請再試')
+    }
   }
 
   function cancelInbodyEdit() {
@@ -396,6 +470,16 @@ export function AdminDashboard({
           }`}
         >
           新增 InBody
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            activeTab === 'settings'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-900 text-gray-400 hover:text-white'
+          }`}
+        >
+          設定
         </button>
       </div>
 
@@ -649,15 +733,19 @@ export function AdminDashboard({
           )}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-2">Day 編號</label>
+              <label className="block text-gray-400 text-sm mb-2">日期</label>
               <input
-                type="number"
-                placeholder="如：80"
-                value={wDay}
-                onChange={(e) => setWDay(e.target.value)}
+                type="date"
+                value={wDate}
+                onChange={(e) => setWDate(e.target.value)}
                 required
                 className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
               />
+              <p className="text-gray-500 text-xs mt-1">
+                {wDayNumber != null && wDayNumber >= 1
+                  ? `= Day ${wDayNumber}（自動計算）`
+                  : '日期需晚於起始日'}
+              </p>
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-2">體重 (kg)</label>
@@ -793,6 +881,58 @@ export function AdminDashboard({
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
           >
             {ibSaving ? '儲存中...' : '儲存 InBody'}
+          </button>
+        </form>
+      )}
+
+      {activeTab === 'settings' && (
+        <form onSubmit={handleSettingsSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-400 text-sm mb-2">起始日（Day 1）</label>
+            <input
+              type="date"
+              value={sStartDate}
+              onChange={(e) => setSStartDate(e.target.value)}
+              required
+              className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            />
+            <p className="text-gray-600 text-xs mt-1">
+              所有體重的 Day 編號都從這天開始算,一般不用更動。
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">目標體重 (kg)</label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="如：75"
+                value={sGoalWeight}
+                onChange={(e) => setSGoalWeight(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">目前體脂 (%)</label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder={
+                  latestInbodyFat != null ? `留空帶最新 InBody ${latestInbodyFat}%` : '如：18.5'
+                }
+                value={sBodyFat}
+                onChange={(e) => setSBodyFat(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              />
+              <p className="text-gray-600 text-xs mt-1">留空則前台自動顯示最新 InBody 體脂。</p>
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={sSaving}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+          >
+            {sSaving ? '儲存中...' : '儲存設定'}
           </button>
         </form>
       )}

@@ -15,6 +15,13 @@ function getDate(dayNumber: number): Date {
 }
 
 async function main() {
+  // 確保有一列設定(已存在則不動,不覆蓋使用者填的目標/體脂)
+  await prisma.settings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, startDate: START_DATE },
+  })
+
   console.log('Seeding weight entries...')
 
   for (let i = 0; i < data.weightData.length; i++) {
