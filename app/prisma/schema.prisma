@@ -17,10 +17,22 @@ model WeightEntry {
   date      DateTime?
 }
 
+model InBodyEntry {
+  id             Int      @id @default(autoincrement())
+  date           DateTime @unique @db.Date
+  weight         Float?   // 體重 kg
+  bodyFat        Float    // 體脂率 %
+  muscle         Float    // 骨骼肌重 kg
+  visceral       Float    // 內臟脂肪等級
+  note           String?
+  createdAt      DateTime @default(now())
+}
+
 model DailyLog {
   id        Int      @id @default(autoincrement())
   date      DateTime @unique @db.Date
   exercises Json?
+  diet      Json?
   dietNote  String?
   bodyNote  String?
   photos    String[]

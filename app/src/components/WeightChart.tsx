@@ -38,7 +38,7 @@ function CustomDot(props: {
     <circle
       cx={cx}
       cy={cy}
-      r={4}
+      r={3}
       fill={color}
       stroke="rgba(0,0,0,0.4)"
       strokeWidth={1}
@@ -56,7 +56,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   const typeLabel =
-    d.type === 'break' ? '🍕 放縱日' : d.type === 'bulk' ? '💪 增肌期' : '💧 減脂日'
+    d.type === 'break' ? '🍕 放縱日' : d.type === 'bulk' ? '💪 增肌期' : '💧 減脂期'
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm shadow-xl">
       <p className="text-white font-semibold">Day {d.day}</p>
@@ -68,8 +68,8 @@ function CustomTooltip({
 }
 
 export function WeightChart({ data }: { data: WeightPoint[] }) {
-  const PX_PER_POINT = 22
-  const MIN_WIDTH = 700
+  const PX_PER_POINT = 11
+  const MIN_WIDTH = 600
   const chartWidth = Math.max(MIN_WIDTH, data.length * PX_PER_POINT)
 
   const weights = data.map((d) => d.weight)
@@ -139,7 +139,7 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
       <div className="flex items-center gap-5 mt-3 px-2">
         <span className="flex items-center gap-1.5 text-xs text-gray-400">
           <span className="inline-block w-3 h-3 rounded-full bg-blue-500" />
-          一般日
+          減脂期
         </span>
         <span className="flex items-center gap-1.5 text-xs text-gray-400">
           <span className="inline-block w-3 h-3 rounded-full bg-red-500" />

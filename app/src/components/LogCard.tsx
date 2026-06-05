@@ -9,10 +9,18 @@ type Exercise = {
   weight: string
 }
 
+type DietItem = {
+  meal: string
+  name: string
+  calories: number | null
+  protein: number | null
+}
+
 type Log = {
   id: number
   date: Date | string
   exercises: Exercise[] | null
+  diet: DietItem[] | null
   dietNote: string | null
   bodyNote: string | null
   photos: string[]
@@ -46,7 +54,7 @@ export function LogCard({ log }: { log: Log }) {
               <span>{exerciseCount} 個動作</span>
             </span>
           )}
-          {log.dietNote && (
+          {(log.diet?.length || log.dietNote) && (
             <span className="flex items-center gap-1 text-green-400">
               <span>🥗</span>
               <span>飲食記錄</span>

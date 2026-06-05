@@ -14,6 +14,15 @@ type Exercise = {
   weight: string
 }
 
+type DietItem = {
+  meal: string
+  name: string
+  calories: number | null
+  protein: number | null
+}
+
+const MEAL_ORDER = ['早餐', '午餐', '晚餐', '點心']
+
 export default async function LogDetailPage({
   params,
 }: {
@@ -34,6 +43,23 @@ export default async function LogDetailPage({
   if (!log) notFound()
 
   const exercises = log.exercises as Exercise[] | null
+  const diet = log.diet as DietItem[] | null
+  const totalCalories = diet?.reduce((s, it) => s + (it.calories ?? 0), 0) ?? 0
+  const totalProtein = diet?.reduce((s, it) => s + (it.protein ?? 0), 0) ?? 0
+
+  // 依餐別分組(早餐/午餐/晚餐/點心,其餘歸到最後),保留原始順序
+  const dietGroups = diet?.length
+    ? Array.from(new Set(diet.map((it) => it.meal || '其他')))
+        .sort((a, b) => {
+          const ia = MEAL_ORDER.indexOf(a)
+          const ib = MEAL_ORDER.indexOf(b)
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+        })
+        .map((meal) => ({
+          meal,
+          items: diet.filter((it) => (it.meal || '其他') === meal),
+        }))
+    : []
   const displayDate = format(dateObj, 'yyyy年M月d日 EEEE', { locale: zhTW })
 
   return (
@@ -82,7 +108,63 @@ export default async function LogDetailPage({
       )}
 
       {/* Diet */}
-      {log.dietNote && (
+      {diet && diet.length > 0 ? (
+        <section className="mb-8">
+          <h2 className="text-green-400 text-xs uppercase tracking-widest font-medium mb-4">
+            🥗 飲食記錄
+          </h2>
+          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-800">
+                  <th className="text-left text-gray-500 font-medium px-4 py-3">品項</th>
+                  <th className="text-right text-gray-500 font-medium px-3 py-3 w-24">熱量</th>
+                  <th className="text-right text-gray-500 font-medium px-4 py-3 w-24">蛋白</th>
+                </tr>
+              </thead>
+              {dietGroups.map((group) => (
+                <tbody key={group.meal}>
+                  <tr className="bg-gray-800/40">
+                    <td
+                      colSpan={3}
+                      className="text-green-400 text-xs font-medium px-4 py-2 tracking-wide"
+                    >
+                      {group.meal}
+                    </td>
+                  </tr>
+                  {group.items.map((it, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-gray-800/50 last:border-0 hover:bg-gray-800/40"
+                    >
+                      <td className="text-white font-medium px-4 py-3">{it.name}</td>
+                      <td className="text-gray-300 text-right px-3 py-3">
+                        {it.calories != null ? it.calories : '—'}
+                      </td>
+                      <td className="text-gray-300 text-right px-4 py-3">
+                        {it.protein != null ? `${it.protein}g` : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
+              {(totalCalories > 0 || totalProtein > 0) && (
+                <tfoot>
+                  <tr className="border-t border-gray-700">
+                    <td className="text-gray-400 px-4 py-3">合計</td>
+                    <td className="text-green-400 font-semibold text-right px-3 py-3">
+                      {totalCalories > 0 ? `${Math.round(totalCalories)}` : '—'}
+                    </td>
+                    <td className="text-green-400 font-semibold text-right px-4 py-3">
+                      {totalProtein > 0 ? `${Math.round(totalProtein)}g` : '—'}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
+        </section>
+      ) : log.dietNote ? (
         <section className="mb-8">
           <h2 className="text-green-400 text-xs uppercase tracking-widest font-medium mb-4">
             🥗 飲食記錄
@@ -91,7 +173,7 @@ export default async function LogDetailPage({
             <p className="text-gray-300 whitespace-pre-line leading-relaxed">{log.dietNote}</p>
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* Body Note */}
       {log.bodyNote && (
@@ -128,7 +210,7 @@ export default async function LogDetailPage({
         </section>
       )}
 
-      {!exercises?.length && !log.dietNote && !log.bodyNote && log.photos.length === 0 && (
+      {!exercises?.length && !diet?.length && !log.dietNote && !log.bodyNote && log.photos.length === 0 && (
         <div className="text-center py-16 text-gray-600">
           這天還沒有記錄內容
         </div>

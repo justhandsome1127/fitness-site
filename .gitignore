@@ -4,3 +4,5 @@ app/.next/
 app/.env*
 app/public/uploads/*
 !app/public/uploads/.gitkeep
+
+.claude/

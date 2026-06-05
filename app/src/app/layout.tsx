@@ -6,8 +6,11 @@ import { Navbar } from '@/components/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'YenFit — 我的健身旅程',
+  title: 'yenfit',
   description: '記錄從100kg到80kg的減脂旅程，以及後續的增肌訓練',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({

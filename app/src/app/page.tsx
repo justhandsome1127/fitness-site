@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { WeightChart, type WeightPoint } from '@/components/WeightChart'
+import { InBodyChart, type InBodyPoint } from '@/components/InBodyChart'
 import { LogCard } from '@/components/LogCard'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -26,14 +27,57 @@ function StatCard({
   )
 }
 
+function InBodyStat({
+  label,
+  value,
+  delta,
+  goodWhenDown,
+  color,
+}: {
+  label: string
+  value: string
+  delta: number | null
+  goodWhenDown: boolean
+  color: string
+}) {
+  let deltaEl = null
+  if (delta != null && Math.abs(delta) > 0.001) {
+    const isGood = goodWhenDown ? delta < 0 : delta > 0
+    const arrow = delta > 0 ? '▲' : '▼'
+    deltaEl = (
+      <span className={`text-xs ${isGood ? 'text-green-400' : 'text-red-400'}`}>
+        {arrow} {Math.abs(delta).toFixed(1)}
+      </span>
+    )
+  }
+  return (
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">{label}</p>
+      <p className={`text-xl font-bold ${color}`}>{value}</p>
+      <p className="mt-0.5 h-4">{deltaEl ?? <span className="text-gray-700 text-xs">—</span>}</p>
+    </div>
+  )
+}
+
 export default async function HomePage() {
-  const [weights, recentLogs] = await Promise.all([
+  const [weights, recentLogs, inbody] = await Promise.all([
     prisma.weightEntry.findMany({ orderBy: { dayNumber: 'asc' } }),
     prisma.dailyLog.findMany({
       orderBy: { date: 'desc' },
       take: 6,
     }),
+    prisma.inBodyEntry.findMany({ orderBy: { date: 'asc' } }),
   ])
+
+  const inbodyPoints: InBodyPoint[] = inbody.map((e) => ({
+    date: format(e.date, 'M/d', { locale: zhTW }),
+    bodyFat: e.bodyFat,
+    muscle: e.muscle,
+    visceral: e.visceral,
+    note: e.note,
+  }))
+  const latestInbody = inbody[inbody.length - 1]
+  const prevInbody = inbody[inbody.length - 2]
 
   const weightPoints: WeightPoint[] = weights.map((w) => ({
     day: w.dayNumber,
@@ -51,19 +95,11 @@ export default async function HomePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
 
-      {/* Hero */}
-      <section className="mb-12 text-center">
-        <p className="text-blue-500 text-sm font-medium uppercase tracking-widest mb-3">
-          健身旅程紀錄
-        </p>
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          100<span className="text-gray-600">kg</span>
-          <span className="text-gray-600 mx-4">→</span>
-          80<span className="text-blue-500">kg</span>
+      {/* Title */}
+      <section className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-white">
+          yen 的訓練紀錄
         </h1>
-        <p className="text-gray-400 max-w-md mx-auto">
-          從胖子到健身狂，每一天的訓練與飲食都有記錄。持續進行中。
-        </p>
       </section>
 
       {/* Stats */}
@@ -108,6 +144,46 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {/* InBody Chart */}
+      {inbodyPoints.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-white font-semibold text-lg mb-4">
+            InBody 量測
+            <span className="ml-2 text-gray-500 text-sm font-normal">
+              (共 {inbody.length} 次)
+            </span>
+          </h2>
+
+          {latestInbody && (
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <InBodyStat
+                label="體脂率"
+                value={`${latestInbody.bodyFat}%`}
+                delta={prevInbody ? latestInbody.bodyFat - prevInbody.bodyFat : null}
+                goodWhenDown
+                color="text-blue-400"
+              />
+              <InBodyStat
+                label="骨骼肌"
+                value={`${latestInbody.muscle} kg`}
+                delta={prevInbody ? latestInbody.muscle - prevInbody.muscle : null}
+                goodWhenDown={false}
+                color="text-green-400"
+              />
+              <InBodyStat
+                label="內臟脂肪"
+                value={`${latestInbody.visceral}`}
+                delta={prevInbody ? latestInbody.visceral - prevInbody.visceral : null}
+                goodWhenDown
+                color="text-amber-400"
+              />
+            </div>
+          )}
+
+          <InBodyChart data={inbodyPoints} />
+        </section>
+      )}
 
       {/* Recent Logs */}
       <section>

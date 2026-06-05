@@ -13,16 +13,30 @@ export default async function AdminPage() {
     return <LoginForm />
   }
 
-  const logs = await prisma.dailyLog.findMany({
-    orderBy: { date: 'desc' },
-    take: 30,
-  })
+  const [logs, weights, inbody] = await Promise.all([
+    prisma.dailyLog.findMany({ orderBy: { date: 'desc' }, take: 30 }),
+    prisma.weightEntry.findMany({ orderBy: { dayNumber: 'desc' } }),
+    prisma.inBodyEntry.findMany({ orderBy: { date: 'desc' } }),
+  ])
 
   const serialized = logs.map((log) => ({
     ...log,
     date: log.date.toISOString(),
     exercises: log.exercises as { name: string; sets: number; reps: string; weight: string }[] | null,
+    diet: log.diet as { meal: string; name: string; calories: number | null; protein: number | null }[] | null,
   }))
 
-  return <AdminDashboard initialLogs={serialized} />
+  const serializedInbody = inbody.map((e) => ({
+    ...e,
+    date: e.date.toISOString(),
+    createdAt: e.createdAt.toISOString(),
+  }))
+
+  return (
+    <AdminDashboard
+      initialLogs={serialized}
+      initialWeights={weights}
+      initialInbody={serializedInbody}
+    />
+  )
 }
