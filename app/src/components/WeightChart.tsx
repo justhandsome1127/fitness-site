@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   ComposedChart,
   Area,
@@ -9,7 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceLine,
-  ResponsiveContainer,
 } from 'recharts'
 
 export type WeightPoint = {
@@ -21,9 +21,9 @@ export type WeightPoint = {
 }
 
 const DOT_COLORS: Record<string, string> = {
-  normal: '#3b82f6',
-  break: '#ef4444',
-  bulk: '#22c55e',
+  normal: '#bf6a4e', // 減脂期 — 赤陶
+  break: '#caa24a', // 放縱日 — 芥末
+  bulk: '#7a8450', // 增肌期 — 橄欖
 }
 
 function CustomDot(props: {
@@ -33,14 +33,14 @@ function CustomDot(props: {
 }) {
   const { cx, cy, payload } = props
   if (cx == null || cy == null || !payload) return null
-  const color = DOT_COLORS[payload.type] ?? '#3b82f6'
+  const color = DOT_COLORS[payload.type] ?? '#bf6a4e'
   return (
     <circle
       cx={cx}
       cy={cy}
       r={3}
       fill={color}
-      stroke="rgba(0,0,0,0.4)"
+      stroke="#faf7f0"
       strokeWidth={1}
     />
   )
@@ -56,13 +56,16 @@ function CustomTooltip({
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   const typeLabel =
-    d.type === 'break' ? '🍕 放縱日' : d.type === 'bulk' ? '💪 增肌期' : '💧 減脂期'
+    d.type === 'break' ? '放縱日' : d.type === 'bulk' ? '增肌期' : '減脂期'
+  const typeColor = DOT_COLORS[d.type] ?? '#bf6a4e'
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm shadow-xl">
-      <p className="text-white font-semibold">Day {d.day}</p>
-      <p className="text-gray-400 text-xs mb-1">{d.dateStr}</p>
-      <p className="text-white text-lg font-bold">{d.weight} kg</p>
-      <p className="text-gray-400 text-xs mt-1">{typeLabel}</p>
+    <div className="bg-paper border border-line rounded-lg p-3 text-sm shadow-md">
+      <p className="text-ink-soft text-xs">Day {d.day} · {d.dateStr}</p>
+      <p className="font-serif text-ink text-lg">{d.weight} kg</p>
+      <p className="flex items-center gap-1.5 text-ink-soft text-xs mt-1">
+        <span className="inline-block w-2 h-2 rounded-full" style={{ background: typeColor }} />
+        {typeLabel}
+      </p>
     </div>
   )
 }
@@ -76,9 +79,16 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
   const minW = Math.min(...weights) - 0.5
   const maxW = Math.max(...weights) + 0.5
 
+  // recharts generates SVG clipPath ids from a global counter that drifts
+  // between the long-running dev server and a fresh client; render the chart
+  // only after mount so server/client output match (avoids hydration error).
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   return (
-    <div className="w-full overflow-x-auto rounded-xl bg-gray-900 p-4">
+    <div className="w-full overflow-x-auto rounded-lg bg-paper border border-line p-4">
       <div style={{ width: chartWidth, height: 300 }}>
+        {mounted && (
         <ComposedChart
           width={chartWidth}
           height={300}
@@ -87,26 +97,26 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
         >
           <defs>
             <linearGradient id="weightFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+              <stop offset="5%" stopColor="#bf6a4e" stopOpacity={0.18} />
+              <stop offset="95%" stopColor="#bf6a4e" stopOpacity={0} />
             </linearGradient>
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e3dccd" />
 
           <XAxis
             dataKey="day"
             tickFormatter={(v) => `D${v}`}
-            tick={{ fill: '#6b7280', fontSize: 11 }}
+            tick={{ fill: '#8a8178', fontSize: 11 }}
             interval={Math.floor(data.length / 12)}
-            axisLine={{ stroke: '#374151' }}
+            axisLine={{ stroke: '#d8cdb8' }}
             tickLine={false}
           />
 
           <YAxis
             domain={[minW, maxW]}
             tickFormatter={(v) => `${v}`}
-            tick={{ fill: '#6b7280', fontSize: 11 }}
+            tick={{ fill: '#8a8178', fontSize: 11 }}
             width={44}
             axisLine={false}
             tickLine={false}
@@ -114,9 +124,9 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
 
           <Tooltip content={<CustomTooltip />} />
 
-          <ReferenceLine y={85} stroke="#374151" strokeDasharray="4 4" label={{ value: '85', fill: '#4b5563', fontSize: 10 }} />
-          <ReferenceLine y={83} stroke="#374151" strokeDasharray="4 4" label={{ value: '83', fill: '#4b5563', fontSize: 10 }} />
-          <ReferenceLine y={81} stroke="#374151" strokeDasharray="4 4" label={{ value: '81', fill: '#4b5563', fontSize: 10 }} />
+          <ReferenceLine y={85} stroke="#d8cdb8" strokeDasharray="4 4" label={{ value: '85', fill: '#b3a99a', fontSize: 10 }} />
+          <ReferenceLine y={83} stroke="#d8cdb8" strokeDasharray="4 4" label={{ value: '83', fill: '#b3a99a', fontSize: 10 }} />
+          <ReferenceLine y={81} stroke="#d8cdb8" strokeDasharray="4 4" label={{ value: '81', fill: '#b3a99a', fontSize: 10 }} />
 
           <Area
             type="monotone"
@@ -128,28 +138,29 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="#475569"
+            stroke="#c2b6a0"
             strokeWidth={2}
             dot={<CustomDot />}
-            activeDot={{ r: 7, fill: '#fff', stroke: '#3b82f6', strokeWidth: 2 }}
+            activeDot={{ r: 7, fill: '#faf7f0', stroke: '#bf6a4e', strokeWidth: 2 }}
           />
         </ComposedChart>
+        )}
       </div>
 
       <div className="flex items-center gap-5 mt-3 px-2">
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
-          <span className="inline-block w-3 h-3 rounded-full bg-blue-500" />
+        <span className="flex items-center gap-1.5 text-xs text-ink-soft">
+          <span className="inline-block w-3 h-3 rounded-full bg-terracotta" />
           減脂期
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
-          <span className="inline-block w-3 h-3 rounded-full bg-red-500" />
+        <span className="flex items-center gap-1.5 text-xs text-ink-soft">
+          <span className="inline-block w-3 h-3 rounded-full bg-mustard" />
           放縱日
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
-          <span className="inline-block w-3 h-3 rounded-full bg-green-500" />
+        <span className="flex items-center gap-1.5 text-xs text-ink-soft">
+          <span className="inline-block w-3 h-3 rounded-full bg-olive" />
           增肌期
         </span>
-        <span className="ml-auto text-xs text-gray-600">← 左右滑動查看完整紀錄</span>
+        <span className="ml-auto text-xs text-ink-faint">← 左右滑動查看完整紀錄</span>
       </div>
     </div>
   )

@@ -430,10 +430,10 @@ export function AdminDashboard({
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-white text-2xl font-bold">後台管理</h1>
+        <h1 className="font-serif text-ink text-2xl">後台管理</h1>
         <button
           onClick={() => signOut()}
-          className="text-gray-500 hover:text-gray-300 text-sm transition-colors"
+          className="text-ink-soft hover:text-ink text-sm transition-colors"
         >
           登出
         </button>
@@ -445,8 +445,8 @@ export function AdminDashboard({
           onClick={() => setActiveTab('log')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'log'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-900 text-gray-400 hover:text-white'
+              ? 'bg-terracotta text-cream'
+              : 'bg-paper border border-line text-ink-soft hover:text-ink'
           }`}
         >
           新增訓練日誌
@@ -455,8 +455,8 @@ export function AdminDashboard({
           onClick={() => setActiveTab('weight')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'weight'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-900 text-gray-400 hover:text-white'
+              ? 'bg-terracotta text-cream'
+              : 'bg-paper border border-line text-ink-soft hover:text-ink'
           }`}
         >
           新增體重記錄
@@ -465,8 +465,8 @@ export function AdminDashboard({
           onClick={() => setActiveTab('inbody')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'inbody'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-900 text-gray-400 hover:text-white'
+              ? 'bg-terracotta text-cream'
+              : 'bg-paper border border-line text-ink-soft hover:text-ink'
           }`}
         >
           新增 InBody
@@ -475,8 +475,8 @@ export function AdminDashboard({
           onClick={() => setActiveTab('settings')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'settings'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-900 text-gray-400 hover:text-white'
+              ? 'bg-terracotta text-cream'
+              : 'bg-paper border border-line text-ink-soft hover:text-ink'
           }`}
         >
           設定
@@ -486,18 +486,18 @@ export function AdminDashboard({
       {activeTab === 'log' && (
         <form onSubmit={handleLogSubmit} className="space-y-6">
           {editingLogDate && (
-            <div className="flex items-center justify-between bg-blue-600/10 border border-blue-600/30 rounded-lg px-3 py-2 text-sm">
+            <div className="flex items-center justify-between bg-terracotta/10 border border-terracotta/30 rounded-lg px-3 py-2 text-sm">
               {editingLogDate !== logDate ? (
-                <span className="text-amber-300">
-                  🔀 將把 {editingLogDate} 的內容併入 {logDate || '(未選日期)'}
+                <span className="text-mustard">
+                  將把 {editingLogDate} 的內容併入 {logDate || '(未選日期)'}
                 </span>
               ) : (
-                <span className="text-blue-300">✏️ 正在編輯 {editingLogDate} 的日誌</span>
+                <span className="text-terracotta">正在編輯 {editingLogDate} 的日誌</span>
               )}
               <button
                 type="button"
                 onClick={cancelLogEdit}
-                className="text-gray-400 hover:text-white text-xs transition-colors"
+                className="text-ink-soft hover:text-ink text-xs transition-colors"
               >
                 取消編輯
               </button>
@@ -505,16 +505,16 @@ export function AdminDashboard({
           )}
           {/* Date */}
           <div>
-            <label className="block text-gray-400 text-sm mb-2">日期</label>
+            <label className="block text-ink-soft text-sm mb-2">日期</label>
             <input
               type="date"
               value={logDate}
               onChange={(e) => setLogDate(e.target.value)}
               required
-              className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
             />
             {!editingLogDate && (
-              <p className="text-gray-600 text-xs mt-1">
+              <p className="text-ink-faint text-xs mt-1">
                 直接送出會「併入」這天現有的內容,不會蓋掉;要修改或刪除既有品項請從下方列表按「編輯」。
               </p>
             )}
@@ -523,11 +523,11 @@ export function AdminDashboard({
           {/* Exercises */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-gray-400 text-sm">訓練動作</label>
+              <label className="text-ink-soft text-sm">訓練動作</label>
               <button
                 type="button"
                 onClick={addExercise}
-                className="text-blue-500 hover:text-blue-400 text-sm transition-colors"
+                className="text-terracotta hover:text-terracotta/80 text-sm transition-colors"
               >
                 + 新增動作
               </button>
@@ -539,7 +539,7 @@ export function AdminDashboard({
                     placeholder="動作名稱（如：臥推）"
                     value={ex.name}
                     onChange={(e) => updateExercise(i, 'name', e.target.value)}
-                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="flex-1 bg-paper border border-line rounded-lg px-3 py-2 text-ink text-sm placeholder-ink-faint focus:outline-none focus:border-terracotta transition-colors"
                   />
                   <input
                     type="number"
@@ -547,25 +547,25 @@ export function AdminDashboard({
                     value={ex.sets}
                     min={1}
                     onChange={(e) => updateExercise(i, 'sets', parseInt(e.target.value))}
-                    className="w-14 bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-white text-sm text-center focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-14 bg-paper border border-line rounded-lg px-2 py-2 text-ink text-sm text-center focus:outline-none focus:border-terracotta transition-colors"
                   />
                   <input
                     placeholder="次數"
                     value={ex.reps}
                     onChange={(e) => updateExercise(i, 'reps', e.target.value)}
-                    className="w-16 bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-white text-sm text-center focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-16 bg-paper border border-line rounded-lg px-2 py-2 text-ink text-sm text-center focus:outline-none focus:border-terracotta transition-colors"
                   />
                   <input
                     placeholder="重量"
                     value={ex.weight}
                     onChange={(e) => updateExercise(i, 'weight', e.target.value)}
-                    className="w-20 bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-white text-sm text-center focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-20 bg-paper border border-line rounded-lg px-2 py-2 text-ink text-sm text-center focus:outline-none focus:border-terracotta transition-colors"
                   />
                   {exercises.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeExercise(i)}
-                      className="text-gray-600 hover:text-red-400 text-lg transition-colors"
+                      className="text-ink-faint hover:text-terracotta text-lg transition-colors"
                     >
                       ×
                     </button>
@@ -578,16 +578,16 @@ export function AdminDashboard({
           {/* Diet */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-gray-400 text-sm">飲食記錄</label>
+              <label className="text-ink-soft text-sm">飲食記錄</label>
               <button
                 type="button"
                 onClick={addDietItem}
-                className="text-blue-500 hover:text-blue-400 text-sm transition-colors"
+                className="text-terracotta hover:text-terracotta/80 text-sm transition-colors"
               >
                 + 新增品項
               </button>
             </div>
-            <div className="flex gap-2 px-1 mb-1 text-gray-600 text-xs">
+            <div className="flex gap-2 px-1 mb-1 text-ink-faint text-xs">
               <span className="w-20">餐別</span>
               <span className="flex-1">品項</span>
               <span className="w-16 text-center">熱量</span>
@@ -600,7 +600,7 @@ export function AdminDashboard({
                   <select
                     value={it.meal}
                     onChange={(e) => updateDietItem(i, 'meal', e.target.value)}
-                    className="w-20 bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-20 bg-paper border border-line rounded-lg px-2 py-2 text-ink text-sm focus:outline-none focus:border-terracotta transition-colors"
                   >
                     {MEAL_OPTIONS.map((m) => (
                       <option key={m} value={m}>
@@ -612,7 +612,7 @@ export function AdminDashboard({
                     placeholder="食物（如：雞胸肉 200g）"
                     value={it.name}
                     onChange={(e) => updateDietItem(i, 'name', e.target.value)}
-                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="flex-1 bg-paper border border-line rounded-lg px-3 py-2 text-ink text-sm placeholder-ink-faint focus:outline-none focus:border-terracotta transition-colors"
                   />
                   <input
                     type="number"
@@ -620,7 +620,7 @@ export function AdminDashboard({
                     placeholder="kcal"
                     value={it.calories}
                     onChange={(e) => updateDietItem(i, 'calories', e.target.value)}
-                    className="w-16 bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-white text-sm text-center focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-16 bg-paper border border-line rounded-lg px-2 py-2 text-ink text-sm text-center focus:outline-none focus:border-terracotta transition-colors"
                   />
                   <input
                     type="number"
@@ -628,13 +628,13 @@ export function AdminDashboard({
                     placeholder="g"
                     value={it.protein}
                     onChange={(e) => updateDietItem(i, 'protein', e.target.value)}
-                    className="w-16 bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-white text-sm text-center focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-16 bg-paper border border-line rounded-lg px-2 py-2 text-ink text-sm text-center focus:outline-none focus:border-terracotta transition-colors"
                   />
                   {dietItems.length > 1 ? (
                     <button
                       type="button"
                       onClick={() => removeDietItem(i)}
-                      className="w-5 text-gray-600 hover:text-red-400 text-lg transition-colors"
+                      className="w-5 text-ink-faint hover:text-terracotta text-lg transition-colors"
                     >
                       ×
                     </button>
@@ -644,24 +644,24 @@ export function AdminDashboard({
                 </div>
               ))}
             </div>
-            <p className="text-gray-600 text-xs mt-2">熱量、蛋白可留空；日誌頁會自動顯示當天加總。</p>
+            <p className="text-ink-faint text-xs mt-2">熱量、蛋白可留空；日誌頁會自動顯示當天加總。</p>
           </div>
 
           {/* Body Note */}
           <div>
-            <label className="block text-gray-400 text-sm mb-2">今日感受 / 備註</label>
+            <label className="block text-ink-soft text-sm mb-2">今日感受 / 備註</label>
             <textarea
               placeholder="體重、身體感受、睡眠、特別紀錄..."
               value={bodyNote}
               onChange={(e) => setBodyNote(e.target.value)}
               rows={2}
-              className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+              className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink placeholder-ink-faint focus:outline-none focus:border-terracotta transition-colors resize-none"
             />
           </div>
 
           {/* Photos */}
           <div>
-            <label className="block text-gray-400 text-sm mb-2">體態照片</label>
+            <label className="block text-ink-soft text-sm mb-2">體態照片</label>
             {existingPhotos.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {existingPhotos.map((url) => (
@@ -671,7 +671,7 @@ export function AdminDashboard({
                     <button
                       type="button"
                       onClick={() => setExistingPhotos((prev) => prev.filter((p) => p !== url))}
-                      className="absolute -top-1.5 -right-1.5 bg-gray-800 border border-gray-600 text-gray-300 hover:text-red-400 rounded-full w-5 h-5 text-xs leading-none"
+                      className="absolute -top-1.5 -right-1.5 bg-paper border border-line text-ink-soft hover:text-terracotta rounded-full w-5 h-5 text-xs leading-none"
                     >
                       ×
                     </button>
@@ -684,9 +684,9 @@ export function AdminDashboard({
               accept="image/*"
               multiple
               onChange={(e) => setPhotos(e.target.files)}
-              className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700 file:transition-colors cursor-pointer"
+              className="block w-full text-sm text-ink-soft file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-cream file:border file:border-line file:text-ink-soft hover:file:bg-line file:transition-colors cursor-pointer"
             />
-            <p className="text-gray-600 text-xs mt-1">
+            <p className="text-ink-faint text-xs mt-1">
               {existingPhotos.length > 0
                 ? '上方為現有照片(可移除);選新檔案會「加在」現有照片後面。'
                 : '可一次選多張。'}
@@ -697,10 +697,10 @@ export function AdminDashboard({
             <p
               className={`text-sm ${
                 msg.startsWith('✅')
-                  ? 'text-green-400'
+                  ? 'text-olive'
                   : msg.startsWith('ℹ️')
-                    ? 'text-blue-300'
-                    : 'text-red-400'
+                    ? 'text-ink-soft'
+                    : 'text-terracotta'
               }`}
             >
               {msg}
@@ -710,7 +710,7 @@ export function AdminDashboard({
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-terracotta hover:bg-terracotta/90 disabled:opacity-50 text-cream font-medium py-3 rounded-lg transition-colors"
           >
             {saving ? '儲存中...' : '儲存日誌'}
           </button>
@@ -720,12 +720,12 @@ export function AdminDashboard({
       {activeTab === 'weight' && (
         <form onSubmit={handleWeightSubmit} className="space-y-4">
           {editingWeightDay != null && (
-            <div className="flex items-center justify-between bg-blue-600/10 border border-blue-600/30 rounded-lg px-3 py-2 text-sm">
-              <span className="text-blue-300">✏️ 正在編輯 Day {editingWeightDay} 的體重</span>
+            <div className="flex items-center justify-between bg-terracotta/10 border border-terracotta/30 rounded-lg px-3 py-2 text-sm">
+              <span className="text-terracotta">正在編輯 Day {editingWeightDay} 的體重</span>
               <button
                 type="button"
                 onClick={cancelWeightEdit}
-                className="text-gray-400 hover:text-white text-xs transition-colors"
+                className="text-ink-soft hover:text-ink text-xs transition-colors"
               >
                 取消編輯
               </button>
@@ -733,22 +733,22 @@ export function AdminDashboard({
           )}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-2">日期</label>
+              <label className="block text-ink-soft text-sm mb-2">日期</label>
               <input
                 type="date"
                 value={wDate}
                 onChange={(e) => setWDate(e.target.value)}
                 required
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
-              <p className="text-gray-500 text-xs mt-1">
+              <p className="text-ink-soft text-xs mt-1">
                 {wDayNumber != null && wDayNumber >= 1
                   ? `= Day ${wDayNumber}（自動計算）`
                   : '日期需晚於起始日'}
               </p>
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-2">體重 (kg)</label>
+              <label className="block text-ink-soft text-sm mb-2">體重 (kg)</label>
               <input
                 type="number"
                 step="0.1"
@@ -756,36 +756,36 @@ export function AdminDashboard({
                 value={wWeight}
                 onChange={(e) => setWWeight(e.target.value)}
                 required
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-sm mb-2">類型</label>
+            <label className="block text-ink-soft text-sm mb-2">類型</label>
             <select
               value={wType}
               onChange={(e) => setWType(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
             >
-              <option value="normal">💙 減脂期</option>
-              <option value="break">❤️ 放縱日</option>
-              <option value="bulk">💚 增肌期</option>
+              <option value="normal">減脂期</option>
+              <option value="break">放縱日</option>
+              <option value="bulk">增肌期</option>
             </select>
           </div>
           <div>
-            <label className="block text-gray-400 text-sm mb-2">備註（選填）</label>
+            <label className="block text-ink-soft text-sm mb-2">備註（選填）</label>
             <input
               type="text"
               placeholder="如：Day 80"
               value={wNote}
               onChange={(e) => setWNote(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={wSaving}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-terracotta hover:bg-terracotta/90 disabled:opacity-50 text-cream font-medium py-3 rounded-lg transition-colors"
           >
             {wSaving ? '儲存中...' : '儲存體重'}
           </button>
@@ -795,30 +795,30 @@ export function AdminDashboard({
       {activeTab === 'inbody' && (
         <form onSubmit={handleInBodySubmit} className="space-y-4">
           {editingInbodyId != null && (
-            <div className="flex items-center justify-between bg-blue-600/10 border border-blue-600/30 rounded-lg px-3 py-2 text-sm">
-              <span className="text-blue-300">✏️ 正在編輯 InBody 記錄</span>
+            <div className="flex items-center justify-between bg-terracotta/10 border border-terracotta/30 rounded-lg px-3 py-2 text-sm">
+              <span className="text-terracotta">正在編輯 InBody 記錄</span>
               <button
                 type="button"
                 onClick={cancelInbodyEdit}
-                className="text-gray-400 hover:text-white text-xs transition-colors"
+                className="text-ink-soft hover:text-ink text-xs transition-colors"
               >
                 取消編輯
               </button>
             </div>
           )}
           <div>
-            <label className="block text-gray-400 text-sm mb-2">量測日期</label>
+            <label className="block text-ink-soft text-sm mb-2">量測日期</label>
             <input
               type="date"
               value={ibDate}
               onChange={(e) => setIbDate(e.target.value)}
               required
-              className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-2">體脂率 (%)</label>
+              <label className="block text-ink-soft text-sm mb-2">體脂率 (%)</label>
               <input
                 type="number"
                 step="0.1"
@@ -826,11 +826,11 @@ export function AdminDashboard({
                 value={ibBodyFat}
                 onChange={(e) => setIbBodyFat(e.target.value)}
                 required
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-2">骨骼肌重 (kg)</label>
+              <label className="block text-ink-soft text-sm mb-2">骨骼肌重 (kg)</label>
               <input
                 type="number"
                 step="0.1"
@@ -838,11 +838,11 @@ export function AdminDashboard({
                 value={ibMuscle}
                 onChange={(e) => setIbMuscle(e.target.value)}
                 required
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-2">內臟脂肪等級</label>
+              <label className="block text-ink-soft text-sm mb-2">內臟脂肪等級</label>
               <input
                 type="number"
                 step="0.1"
@@ -850,35 +850,35 @@ export function AdminDashboard({
                 value={ibVisceral}
                 onChange={(e) => setIbVisceral(e.target.value)}
                 required
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-2">體重 (kg，選填)</label>
+              <label className="block text-ink-soft text-sm mb-2">體重 (kg，選填)</label>
               <input
                 type="number"
                 step="0.1"
                 placeholder="如：81.5"
                 value={ibWeight}
                 onChange={(e) => setIbWeight(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-sm mb-2">備註（選填）</label>
+            <label className="block text-ink-soft text-sm mb-2">備註（選填）</label>
             <input
               type="text"
               placeholder="如：早上空腹量測"
               value={ibNote}
               onChange={(e) => setIbNote(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={ibSaving}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-terracotta hover:bg-terracotta/90 disabled:opacity-50 text-cream font-medium py-3 rounded-lg transition-colors"
           >
             {ibSaving ? '儲存中...' : '儲存 InBody'}
           </button>
@@ -888,32 +888,32 @@ export function AdminDashboard({
       {activeTab === 'settings' && (
         <form onSubmit={handleSettingsSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-400 text-sm mb-2">起始日（Day 1）</label>
+            <label className="block text-ink-soft text-sm mb-2">起始日（Day 1）</label>
             <input
               type="date"
               value={sStartDate}
               onChange={(e) => setSStartDate(e.target.value)}
               required
-              className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
             />
-            <p className="text-gray-600 text-xs mt-1">
+            <p className="text-ink-faint text-xs mt-1">
               所有體重的 Day 編號都從這天開始算,一般不用更動。
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-400 text-sm mb-2">目標體重 (kg)</label>
+              <label className="block text-ink-soft text-sm mb-2">目標體重 (kg)</label>
               <input
                 type="number"
                 step="0.1"
                 placeholder="如：75"
                 value={sGoalWeight}
                 onChange={(e) => setSGoalWeight(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-2">目前體脂 (%)</label>
+              <label className="block text-ink-soft text-sm mb-2">目前體脂 (%)</label>
               <input
                 type="number"
                 step="0.1"
@@ -922,15 +922,15 @@ export function AdminDashboard({
                 }
                 value={sBodyFat}
                 onChange={(e) => setSBodyFat(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-terracotta transition-colors"
               />
-              <p className="text-gray-600 text-xs mt-1">留空則前台自動顯示最新 InBody 體脂。</p>
+              <p className="text-ink-faint text-xs mt-1">留空則前台自動顯示最新 InBody 體脂。</p>
             </div>
           </div>
           <button
             type="submit"
             disabled={sSaving}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-terracotta hover:bg-terracotta/90 disabled:opacity-50 text-cream font-medium py-3 rounded-lg transition-colors"
           >
             {sSaving ? '儲存中...' : '儲存設定'}
           </button>
@@ -940,38 +940,38 @@ export function AdminDashboard({
       {/* Log history */}
       {activeTab === 'log' && (
       <div className="mt-12">
-        <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-4">已有日誌</h2>
+        <h2 className="font-serif text-ink text-lg mb-4">已有日誌</h2>
         {logs.length === 0 ? (
-          <p className="text-gray-600 text-sm">還沒有任何日誌</p>
+          <p className="text-ink-faint text-sm">還沒有任何日誌</p>
         ) : (
           <div className="space-y-2">
             {logs.map((log) => (
               <div
                 key={log.id}
-                className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 flex items-center justify-between"
+                className="bg-paper border border-line rounded-lg px-4 py-3 flex items-center justify-between"
               >
                 <div>
-                  <p className="text-white text-sm font-medium">{log.date.slice(0, 10)}</p>
-                  <p className="text-gray-600 text-xs mt-0.5">
+                  <p className="text-ink text-sm font-medium">{log.date.slice(0, 10)}</p>
+                  <p className="text-ink-faint text-xs mt-0.5">
                     {log.exercises?.length ?? 0} 個動作 · {log.photos.length} 張照片
                   </p>
                 </div>
                 <div className="flex gap-3">
                   <a
                     href={`/log/${log.date.slice(0, 10)}`}
-                    className="text-blue-500 hover:text-blue-400 text-xs transition-colors"
+                    className="text-terracotta hover:text-terracotta/80 text-xs transition-colors"
                   >
                     查看
                   </a>
                   <button
                     onClick={() => editLog(log)}
-                    className="text-gray-400 hover:text-white text-xs transition-colors"
+                    className="text-ink-soft hover:text-ink text-xs transition-colors"
                   >
                     編輯
                   </button>
                   <button
                     onClick={() => deleteLog(log.id, log.date.slice(0, 10))}
-                    className="text-gray-600 hover:text-red-400 text-xs transition-colors"
+                    className="text-ink-faint hover:text-terracotta text-xs transition-colors"
                   >
                     刪除
                   </button>
@@ -986,35 +986,35 @@ export function AdminDashboard({
       {/* Weight history */}
       {activeTab === 'weight' && (
       <div className="mt-12">
-        <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-4">已有體重記錄</h2>
+        <h2 className="font-serif text-ink text-lg mb-4">已有體重記錄</h2>
         {weights.length === 0 ? (
-          <p className="text-gray-600 text-sm">還沒有任何體重記錄</p>
+          <p className="text-ink-faint text-sm">還沒有任何體重記錄</p>
         ) : (
           <div className="space-y-2">
             {weights.map((w) => (
               <div
                 key={w.id}
-                className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 flex items-center justify-between"
+                className="bg-paper border border-line rounded-lg px-4 py-3 flex items-center justify-between"
               >
                 <div>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-ink text-sm font-medium">
                     Day {w.dayNumber} · {w.weight} kg
-                    <span className="ml-2 text-xs text-gray-500">
+                    <span className="ml-2 text-xs text-ink-soft">
                       {w.type === 'break' ? '放縱日' : w.type === 'bulk' ? '增肌期' : '減脂期'}
                     </span>
                   </p>
-                  {w.note && <p className="text-gray-600 text-xs mt-0.5">{w.note}</p>}
+                  {w.note && <p className="text-ink-faint text-xs mt-0.5">{w.note}</p>}
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => editWeight(w)}
-                    className="text-gray-400 hover:text-white text-xs transition-colors"
+                    className="text-ink-soft hover:text-ink text-xs transition-colors"
                   >
                     編輯
                   </button>
                   <button
                     onClick={() => deleteWeight(w.dayNumber)}
-                    className="text-gray-600 hover:text-red-400 text-xs transition-colors"
+                    className="text-ink-faint hover:text-terracotta text-xs transition-colors"
                   >
                     刪除
                   </button>
@@ -1029,32 +1029,32 @@ export function AdminDashboard({
       {/* InBody history */}
       {activeTab === 'inbody' && (
       <div className="mt-12">
-        <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-4">已有 InBody 記錄</h2>
+        <h2 className="font-serif text-ink text-lg mb-4">已有 InBody 記錄</h2>
         {inbodyList.length === 0 ? (
-          <p className="text-gray-600 text-sm">還沒有任何 InBody 記錄</p>
+          <p className="text-ink-faint text-sm">還沒有任何 InBody 記錄</p>
         ) : (
           <div className="space-y-2">
             {inbodyList.map((e) => (
               <div
                 key={e.id}
-                className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 flex items-center justify-between"
+                className="bg-paper border border-line rounded-lg px-4 py-3 flex items-center justify-between"
               >
                 <div>
-                  <p className="text-white text-sm font-medium">{e.date.slice(0, 10)}</p>
-                  <p className="text-gray-600 text-xs mt-0.5">
+                  <p className="text-ink text-sm font-medium">{e.date.slice(0, 10)}</p>
+                  <p className="text-ink-faint text-xs mt-0.5">
                     體脂 {e.bodyFat}% · 骨骼肌 {e.muscle}kg · 內臟脂肪 {e.visceral}
                   </p>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => editInbody(e)}
-                    className="text-gray-400 hover:text-white text-xs transition-colors"
+                    className="text-ink-soft hover:text-ink text-xs transition-colors"
                   >
                     編輯
                   </button>
                   <button
                     onClick={() => deleteInbody(e.id, e.date)}
-                    className="text-gray-600 hover:text-red-400 text-xs transition-colors"
+                    className="text-ink-faint hover:text-terracotta text-xs transition-colors"
                   >
                     刪除
                   </button>

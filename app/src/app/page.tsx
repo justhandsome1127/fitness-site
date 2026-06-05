@@ -7,22 +7,32 @@ import { zhTW } from 'date-fns/locale'
 
 export const dynamic = 'force-dynamic'
 
+function SectionTitle({ children, count }: { children: React.ReactNode; count?: string }) {
+  return (
+    <h2 className="font-serif text-ink text-xl mb-4 flex items-baseline gap-2">
+      <span className="w-5 h-px bg-terracotta translate-y-[-0.3em]" />
+      {children}
+      {count && <span className="text-ink-soft text-sm font-sans font-normal">{count}</span>}
+    </h2>
+  )
+}
+
 function StatCard({
   label,
   value,
   sub,
-  color = 'text-white',
+  accent = false,
 }: {
   label: string
   value: string
   sub?: string
-  color?: string
+  accent?: boolean
 }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-      <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-gray-500 text-xs mt-0.5">{sub}</p>}
+    <div className="bg-paper border border-line rounded-lg p-5 shadow-[0_1px_2px_rgba(43,39,35,0.04)]">
+      <p className="text-ink-soft text-sm mb-1">{label}</p>
+      <p className={`font-serif text-2xl ${accent ? 'text-terracotta' : 'text-ink'}`}>{value}</p>
+      {sub && <p className="text-ink-faint text-xs mt-1">{sub}</p>}
     </div>
   )
 }
@@ -32,29 +42,27 @@ function InBodyStat({
   value,
   delta,
   goodWhenDown,
-  color,
 }: {
   label: string
   value: string
   delta: number | null
   goodWhenDown: boolean
-  color: string
 }) {
   let deltaEl = null
   if (delta != null && Math.abs(delta) > 0.001) {
     const isGood = goodWhenDown ? delta < 0 : delta > 0
-    const arrow = delta > 0 ? '▲' : '▼'
+    const arrow = delta > 0 ? '↑' : '↓'
     deltaEl = (
-      <span className={`text-xs ${isGood ? 'text-green-400' : 'text-red-400'}`}>
+      <span className={`text-xs ${isGood ? 'text-olive' : 'text-terracotta'}`}>
         {arrow} {Math.abs(delta).toFixed(1)}
       </span>
     )
   }
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-      <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">{label}</p>
-      <p className={`text-xl font-bold ${color}`}>{value}</p>
-      <p className="mt-0.5 h-4">{deltaEl ?? <span className="text-gray-700 text-xs">—</span>}</p>
+    <div className="bg-paper border border-line rounded-lg p-4 shadow-[0_1px_2px_rgba(43,39,35,0.04)]">
+      <p className="text-ink-soft text-sm mb-1">{label}</p>
+      <p className="font-serif text-xl text-ink">{value}</p>
+      <p className="mt-1 h-4">{deltaEl ?? <span className="text-ink-faint text-xs">—</span>}</p>
     </div>
   )
 }
@@ -107,9 +115,10 @@ export default async function HomePage() {
 
       {/* Title */}
       <section className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-white">
+        <h1 className="font-serif text-3xl md:text-4xl text-ink">
           yen 的訓練紀錄
         </h1>
+        <p className="text-ink-soft text-sm mt-2">從 100kg 一路記到現在</p>
       </section>
 
       {/* Stats */}
@@ -118,40 +127,32 @@ export default async function HomePage() {
           label="目前體重"
           value={`${latest?.weight ?? '—'} kg`}
           sub={`Day ${latest?.dayNumber ?? '—'}`}
-          color="text-blue-400"
+          accent
         />
         <StatCard
           label="目標體重"
           value={goalWeight != null ? `${goalWeight} kg` : '—'}
           sub={toGoal != null ? `還差 ${toGoal} kg` : '後台可設定'}
-          color="text-green-400"
         />
         <StatCard
           label="堅持天數"
           value={`${persistDays} 天`}
           sub={`放縱 ${breakDays} 天`}
-          color="text-amber-400"
         />
         <StatCard
           label="目前體脂"
           value={bodyFatValue != null ? `${bodyFatValue}%` : '—'}
           sub={settings?.bodyFat != null ? '手動設定' : '最新 InBody'}
-          color="text-pink-400"
         />
       </section>
 
       {/* Weight Chart */}
       <section className="mb-12">
-        <h2 className="text-white font-semibold text-lg mb-4">
-          體重變化圖
-          <span className="ml-2 text-gray-500 text-sm font-normal">
-            ({weights.length} 天紀錄)
-          </span>
-        </h2>
+        <SectionTitle count={`${weights.length} 天紀錄`}>體重變化圖</SectionTitle>
         {weightPoints.length > 0 ? (
           <WeightChart data={weightPoints} />
         ) : (
-          <div className="bg-gray-900 rounded-xl p-10 text-center text-gray-600">
+          <div className="bg-paper border border-line rounded-lg p-10 text-center text-ink-faint">
             尚無體重數據
           </div>
         )}
@@ -160,12 +161,7 @@ export default async function HomePage() {
       {/* InBody Chart */}
       {inbodyPoints.length > 0 && (
         <section className="mb-12">
-          <h2 className="text-white font-semibold text-lg mb-4">
-            InBody 量測
-            <span className="ml-2 text-gray-500 text-sm font-normal">
-              (共 {inbody.length} 次)
-            </span>
-          </h2>
+          <SectionTitle count={`共 ${inbody.length} 次`}>InBody 量測</SectionTitle>
 
           {latestInbody && (
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -174,21 +170,18 @@ export default async function HomePage() {
                 value={`${latestInbody.bodyFat}%`}
                 delta={prevInbody ? latestInbody.bodyFat - prevInbody.bodyFat : null}
                 goodWhenDown
-                color="text-blue-400"
               />
               <InBodyStat
                 label="骨骼肌"
                 value={`${latestInbody.muscle} kg`}
                 delta={prevInbody ? latestInbody.muscle - prevInbody.muscle : null}
                 goodWhenDown={false}
-                color="text-green-400"
               />
               <InBodyStat
                 label="內臟脂肪"
                 value={`${latestInbody.visceral}`}
                 delta={prevInbody ? latestInbody.visceral - prevInbody.visceral : null}
                 goodWhenDown
-                color="text-amber-400"
               />
             </div>
           )}
@@ -200,8 +193,8 @@ export default async function HomePage() {
       {/* Recent Logs */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white font-semibold text-lg">最近訓練日誌</h2>
-          <a href="/log" className="text-blue-500 hover:text-blue-400 text-sm transition-colors">
+          <SectionTitle>最近訓練日誌</SectionTitle>
+          <a href="/log" className="text-terracotta hover:text-terracotta/80 text-sm transition-colors">
             查看全部 →
           </a>
         </div>
@@ -213,9 +206,9 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-            <p className="text-gray-600">還沒有訓練日誌</p>
-            <p className="text-gray-700 text-sm mt-1">登入後台開始新增吧！</p>
+          <div className="bg-paper border border-line rounded-lg p-10 text-center">
+            <p className="text-ink-soft">還沒有訓練日誌</p>
+            <p className="text-ink-faint text-sm mt-1">登入後台開始新增吧</p>
           </div>
         )}
       </section>

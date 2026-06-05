@@ -27,8 +27,8 @@ export function LoginForm() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-white text-2xl font-bold text-center mb-2">後台登入</h1>
-        <p className="text-gray-500 text-center text-sm mb-8">只有你可以進入這裡</p>
+        <h1 className="font-serif text-ink text-2xl text-center mb-2">後台登入</h1>
+        <p className="text-ink-soft text-center text-sm mb-8">只有你可以進入這裡</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -36,14 +36,14 @@ export function LoginForm() {
             placeholder="輸入管理員密碼"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-full bg-paper border border-line rounded-lg px-4 py-3 text-ink placeholder-ink-faint focus:outline-none focus:border-terracotta transition-colors"
             required
           />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-terracotta text-sm">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-terracotta hover:bg-terracotta/90 disabled:opacity-50 text-cream font-medium py-3 rounded-lg transition-colors"
           >
             {loading ? '登入中...' : '登入'}
           </button>

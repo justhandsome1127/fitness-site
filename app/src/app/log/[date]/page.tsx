@@ -23,6 +23,15 @@ type DietItem = {
 
 const MEAL_ORDER = ['早餐', '午餐', '晚餐', '點心']
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="font-serif text-ink text-lg mb-4 flex items-baseline gap-2">
+      <span className="w-5 h-px bg-terracotta translate-y-[-0.3em]" />
+      {children}
+    </h2>
+  )
+}
+
 export default async function LogDetailPage({
   params,
 }: {
@@ -66,39 +75,37 @@ export default async function LogDetailPage({
     <div className="max-w-3xl mx-auto px-4 py-10">
       <Link
         href="/log"
-        className="text-gray-500 hover:text-gray-300 text-sm mb-6 inline-flex items-center gap-1 transition-colors"
+        className="text-ink-soft hover:text-ink text-sm mb-6 inline-flex items-center gap-1 transition-colors"
       >
         ← 返回日誌列表
       </Link>
 
-      <h1 className="text-white text-2xl font-bold mt-2 mb-8">{displayDate}</h1>
+      <h1 className="font-serif text-ink text-2xl mt-2 mb-8">{displayDate}</h1>
 
       {/* Training */}
       {exercises && exercises.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-blue-400 text-xs uppercase tracking-widest font-medium mb-4">
-            🏋️ 訓練內容
-          </h2>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <SectionTitle>訓練內容</SectionTitle>
+          <div className="bg-paper border border-line rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="text-left text-gray-500 font-medium px-4 py-3">動作</th>
-                  <th className="text-center text-gray-500 font-medium px-3 py-3">組數</th>
-                  <th className="text-center text-gray-500 font-medium px-3 py-3">次數</th>
-                  <th className="text-center text-gray-500 font-medium px-3 py-3">重量</th>
+                <tr className="border-b border-line">
+                  <th className="text-left text-ink-soft font-medium px-4 py-3">動作</th>
+                  <th className="text-center text-ink-soft font-medium px-3 py-3">組數</th>
+                  <th className="text-center text-ink-soft font-medium px-3 py-3">次數</th>
+                  <th className="text-center text-ink-soft font-medium px-3 py-3">重量</th>
                 </tr>
               </thead>
               <tbody>
                 {exercises.map((ex, i) => (
                   <tr
                     key={i}
-                    className="border-b border-gray-800/50 last:border-0 hover:bg-gray-800/40"
+                    className="border-b border-line/60 last:border-0 hover:bg-cream"
                   >
-                    <td className="text-white font-medium px-4 py-3">{ex.name}</td>
-                    <td className="text-gray-300 text-center px-3 py-3">{ex.sets}</td>
-                    <td className="text-gray-300 text-center px-3 py-3">{ex.reps}</td>
-                    <td className="text-gray-300 text-center px-3 py-3">{ex.weight}</td>
+                    <td className="text-ink font-medium px-4 py-3">{ex.name}</td>
+                    <td className="text-ink-soft text-center px-3 py-3">{ex.sets}</td>
+                    <td className="text-ink-soft text-center px-3 py-3">{ex.reps}</td>
+                    <td className="text-ink-soft text-center px-3 py-3">{ex.weight}</td>
                   </tr>
                 ))}
               </tbody>
@@ -110,24 +117,22 @@ export default async function LogDetailPage({
       {/* Diet */}
       {diet && diet.length > 0 ? (
         <section className="mb-8">
-          <h2 className="text-green-400 text-xs uppercase tracking-widest font-medium mb-4">
-            🥗 飲食記錄
-          </h2>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <SectionTitle>飲食記錄</SectionTitle>
+          <div className="bg-paper border border-line rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="text-left text-gray-500 font-medium px-4 py-3">品項</th>
-                  <th className="text-right text-gray-500 font-medium px-3 py-3 w-24">熱量</th>
-                  <th className="text-right text-gray-500 font-medium px-4 py-3 w-24">蛋白</th>
+                <tr className="border-b border-line">
+                  <th className="text-left text-ink-soft font-medium px-4 py-3">品項</th>
+                  <th className="text-right text-ink-soft font-medium px-3 py-3 w-24">熱量</th>
+                  <th className="text-right text-ink-soft font-medium px-4 py-3 w-24">蛋白</th>
                 </tr>
               </thead>
               {dietGroups.map((group) => (
                 <tbody key={group.meal}>
-                  <tr className="bg-gray-800/40">
+                  <tr className="bg-cream">
                     <td
                       colSpan={3}
-                      className="text-green-400 text-xs font-medium px-4 py-2 tracking-wide"
+                      className="text-ink-soft text-xs font-medium px-4 py-2 tracking-wide"
                     >
                       {group.meal}
                     </td>
@@ -135,13 +140,13 @@ export default async function LogDetailPage({
                   {group.items.map((it, i) => (
                     <tr
                       key={i}
-                      className="border-b border-gray-800/50 last:border-0 hover:bg-gray-800/40"
+                      className="border-b border-line/60 last:border-0 hover:bg-cream"
                     >
-                      <td className="text-white font-medium px-4 py-3">{it.name}</td>
-                      <td className="text-gray-300 text-right px-3 py-3">
+                      <td className="text-ink font-medium px-4 py-3">{it.name}</td>
+                      <td className="text-ink-soft text-right px-3 py-3">
                         {it.calories != null ? it.calories : '—'}
                       </td>
-                      <td className="text-gray-300 text-right px-4 py-3">
+                      <td className="text-ink-soft text-right px-4 py-3">
                         {it.protein != null ? `${it.protein}g` : '—'}
                       </td>
                     </tr>
@@ -150,12 +155,12 @@ export default async function LogDetailPage({
               ))}
               {(totalCalories > 0 || totalProtein > 0) && (
                 <tfoot>
-                  <tr className="border-t border-gray-700">
-                    <td className="text-gray-400 px-4 py-3">合計</td>
-                    <td className="text-green-400 font-semibold text-right px-3 py-3">
+                  <tr className="border-t border-line">
+                    <td className="text-ink-soft px-4 py-3">合計</td>
+                    <td className="text-terracotta font-serif text-right px-3 py-3">
                       {totalCalories > 0 ? `${Math.round(totalCalories)}` : '—'}
                     </td>
-                    <td className="text-green-400 font-semibold text-right px-4 py-3">
+                    <td className="text-terracotta font-serif text-right px-4 py-3">
                       {totalProtein > 0 ? `${Math.round(totalProtein)}g` : '—'}
                     </td>
                   </tr>
@@ -166,11 +171,9 @@ export default async function LogDetailPage({
         </section>
       ) : log.dietNote ? (
         <section className="mb-8">
-          <h2 className="text-green-400 text-xs uppercase tracking-widest font-medium mb-4">
-            🥗 飲食記錄
-          </h2>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-300 whitespace-pre-line leading-relaxed">{log.dietNote}</p>
+          <SectionTitle>飲食記錄</SectionTitle>
+          <div className="bg-paper border border-line rounded-lg p-4">
+            <p className="text-ink whitespace-pre-line leading-relaxed">{log.dietNote}</p>
           </div>
         </section>
       ) : null}
@@ -178,11 +181,9 @@ export default async function LogDetailPage({
       {/* Body Note */}
       {log.bodyNote && (
         <section className="mb-8">
-          <h2 className="text-yellow-400 text-xs uppercase tracking-widest font-medium mb-4">
-            📝 今日記錄
-          </h2>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-300 whitespace-pre-line leading-relaxed">{log.bodyNote}</p>
+          <SectionTitle>今日記錄</SectionTitle>
+          <div className="bg-paper border border-line rounded-lg p-4">
+            <p className="text-ink whitespace-pre-line leading-relaxed">{log.bodyNote}</p>
           </div>
         </section>
       )}
@@ -190,13 +191,11 @@ export default async function LogDetailPage({
       {/* Photos */}
       {log.photos.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-purple-400 text-xs uppercase tracking-widest font-medium mb-4">
-            📷 體態照片
-          </h2>
+          <SectionTitle>體態照片</SectionTitle>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {log.photos.map((src, i) => (
               <a key={i} href={src} target="_blank" rel="noopener noreferrer">
-                <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-900 border border-gray-800">
+                <div className="relative aspect-square rounded-lg overflow-hidden bg-paper border border-line">
                   <Image
                     src={src}
                     alt={`體態照片 ${i + 1}`}
@@ -211,7 +210,7 @@ export default async function LogDetailPage({
       )}
 
       {!exercises?.length && !diet?.length && !log.dietNote && !log.bodyNote && log.photos.length === 0 && (
-        <div className="text-center py-16 text-gray-600">
+        <div className="text-center py-16 text-ink-faint">
           這天還沒有記錄內容
         </div>
       )}

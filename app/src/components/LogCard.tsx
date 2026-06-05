@@ -34,30 +34,30 @@ export function LogCard({ log }: { log: Log }) {
 
   return (
     <Link href={`/log/${dateStr}`}>
-      <div className="bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-xl p-4 transition-all hover:bg-gray-800/80 group">
+      <div className="bg-paper border border-line hover:border-terracotta-soft rounded-lg p-4 transition-colors shadow-[0_1px_2px_rgba(43,39,35,0.04)] group">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <p className="text-white font-semibold">{displayDate}</p>
-            <p className="text-gray-500 text-xs mt-0.5">{dateStr}</p>
+            <p className="font-serif text-ink text-lg">{displayDate}</p>
+            <p className="text-ink-faint text-xs mt-0.5">{dateStr}</p>
           </div>
           {log.photos.length > 0 && (
-            <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-md">
-              📷 {log.photos.length}
+            <span className="text-xs text-ink-soft bg-cream border border-line px-2 py-1 rounded">
+              照片 {log.photos.length}
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-3 text-sm">
           {exerciseCount > 0 && (
-            <span className="flex items-center gap-1 text-blue-400">
-              <span>🏋️</span>
-              <span>{exerciseCount} 個動作</span>
+            <span className="flex items-center gap-1.5 text-ink-soft">
+              <span className="w-1.5 h-1.5 rounded-full bg-terracotta inline-block" />
+              {exerciseCount} 個動作
             </span>
           )}
           {(log.diet?.length || log.dietNote) && (
-            <span className="flex items-center gap-1 text-green-400">
-              <span>🥗</span>
-              <span>飲食記錄</span>
+            <span className="flex items-center gap-1.5 text-ink-soft">
+              <span className="w-1.5 h-1.5 rounded-full bg-olive inline-block" />
+              飲食記錄
             </span>
           )}
         </div>
@@ -65,12 +65,12 @@ export function LogCard({ log }: { log: Log }) {
         {exerciseCount > 0 && log.exercises && (
           <div className="mt-2 flex flex-wrap gap-1">
             {log.exercises.slice(0, 4).map((ex, i) => (
-              <span key={i} className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded">
+              <span key={i} className="text-xs bg-cream border border-line text-ink-soft px-2 py-0.5 rounded">
                 {ex.name}
               </span>
             ))}
             {exerciseCount > 4 && (
-              <span className="text-xs text-gray-600">+{exerciseCount - 4}</span>
+              <span className="text-xs text-ink-faint">+{exerciseCount - 4}</span>
             )}
           </div>
         )}

@@ -3,12 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --background: #030712;
+  --background: #f4efe6;
 }
 
 body {
-  background-color: #030712;
-  color: #f9fafb;
+  background-color: #f4efe6;
+  color: #2b2723;
+  /* 極淡點陣:像方眼/點點筆記本 */
+  background-image: radial-gradient(#d9cfba 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
 }
 
 * {
@@ -17,12 +21,12 @@ body {
 
 /* Custom scrollbar for chart container */
 .overflow-x-auto::-webkit-scrollbar {
-  height: 4px;
+  height: 6px;
 }
 .overflow-x-auto::-webkit-scrollbar-track {
-  background: #111827;
+  background: transparent;
 }
 .overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 2px;
+  background: #d8cdb8;
+  border-radius: 3px;
 }
