@@ -4,7 +4,7 @@ import { Navbar } from '@/components/Navbar'
 
 export const metadata: Metadata = {
   title: 'yenfit',
-  description: '記錄從100kg到80kg的減脂旅程，以及後續的增肌訓練',
+  description: 'YEN的訓練紀錄！',
   icons: {
     icon: '/favicon.ico',
   },
