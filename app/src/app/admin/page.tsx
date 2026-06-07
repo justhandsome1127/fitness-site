@@ -14,11 +14,16 @@ export default async function AdminPage() {
   }
   const userId = session.user.id
 
-  const [logs, weights, inbody, user] = await Promise.all([
+  const isAdmin = session.user.role === 'admin'
+
+  const [logs, weights, inbody, user, invites] = await Promise.all([
     prisma.dailyLog.findMany({ where: { userId }, orderBy: { date: 'desc' }, take: 30 }),
     prisma.weightEntry.findMany({ where: { userId }, orderBy: { dayNumber: 'desc' } }),
     prisma.inBodyEntry.findMany({ where: { userId }, orderBy: { date: 'desc' } }),
     prisma.user.findUnique({ where: { id: userId } }),
+    isAdmin
+      ? prisma.inviteCode.findMany({ orderBy: { createdAt: 'desc' } })
+      : Promise.resolve([]),
   ])
 
   const serializedWeights = weights.map((w) => ({
@@ -51,13 +56,23 @@ export default async function AdminPage() {
     createdAt: e.createdAt.toISOString(),
   }))
 
+  const serializedInvites = invites.map((i) => ({
+    id: i.id,
+    code: i.code,
+    maxUses: i.maxUses,
+    usedCount: i.usedCount,
+    label: i.label,
+  }))
+
   return (
     <AdminDashboard
       username={session.user.username}
+      isAdmin={isAdmin}
       initialLogs={serialized}
       initialWeights={serializedWeights}
       initialInbody={serializedInbody}
       initialSettings={serializedSettings}
+      initialInvites={serializedInvites}
     />
   )
 }

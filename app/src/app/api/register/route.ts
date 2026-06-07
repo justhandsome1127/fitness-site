@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
@@ -14,6 +15,7 @@ const schema = z.object({
     .regex(/^[a-z0-9_]{3,20}$/, '帳號限 3-20 字的英文小寫、數字或底線'),
   displayName: z.string().trim().min(1, '請填顯示名稱').max(30, '顯示名稱過長'),
   password: z.string().min(8, '密碼至少 8 碼').max(100, '密碼過長'),
+  invite: z.string().trim().min(1, '請填邀請碼').max(64, '邀請碼無效'),
 })
 
 export async function POST(request: NextRequest) {
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     )
   }
-  const { username, displayName, password } = parsed.data
+  const { username, displayName, password, invite } = parsed.data
 
   if (RESERVED.has(username)) {
     return NextResponse.json({ error: '此帳號名稱保留中,請換一個' }, { status: 400 })
@@ -54,9 +56,27 @@ export async function POST(request: NextRequest) {
     Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
   )
 
-  await prisma.user.create({
-    data: { username, displayName, passwordHash, role: 'user', startDate },
-  })
+  try {
+    // 原子地「認領」邀請碼一次再建帳號:單一 UPDATE 條件 usedCount < maxUses,
+    // 避免兩人同時用掉最後一個名額。建帳號失敗(例如帳號競態撞名)會整筆 rollback,邀請碼不會被白白消耗。
+    await prisma.$transaction(async (tx) => {
+      const claimed = await tx.$executeRaw`
+        UPDATE "InviteCode" SET "usedCount" = "usedCount" + 1
+        WHERE "code" = ${invite} AND "usedCount" < "maxUses"`
+      if (claimed === 0) throw new Error('INVALID_INVITE')
+      await tx.user.create({
+        data: { username, displayName, passwordHash, role: 'user', startDate },
+      })
+    })
+  } catch (e) {
+    if (e instanceof Error && e.message === 'INVALID_INVITE') {
+      return NextResponse.json({ error: '邀請碼無效或已用完' }, { status: 403 })
+    }
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return NextResponse.json({ error: '帳號已被使用' }, { status: 409 })
+    }
+    throw e
+  }
 
   return NextResponse.json({ ok: true, username })
 }

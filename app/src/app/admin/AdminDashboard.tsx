@@ -73,18 +73,30 @@ const emptyDietItem = (meal: string = MEAL_OPTIONS[0]): DietFormItem => ({
 
 const DEFAULT_START = '2026-03-17T00:00:00.000Z'
 
+type Invite = {
+  id: number
+  code: string
+  maxUses: number
+  usedCount: number
+  label: string | null
+}
+
 export function AdminDashboard({
   username,
+  isAdmin,
   initialLogs,
   initialWeights,
   initialInbody,
   initialSettings,
+  initialInvites,
 }: {
   username: string
+  isAdmin: boolean
   initialLogs: Log[]
   initialWeights: WeightRow[]
   initialInbody: InBodyRow[]
   initialSettings: Settings | null
+  initialInvites: Invite[]
 }) {
   const [logs, setLogs] = useState(initialLogs)
   const [weights, setWeights] = useState(initialWeights)
@@ -92,7 +104,55 @@ export function AdminDashboard({
   const [settings, setSettings] = useState<Settings>(
     initialSettings ?? { startDate: DEFAULT_START, goalWeight: null, bodyFat: null }
   )
-  const [activeTab, setActiveTab] = useState<'log' | 'weight' | 'inbody' | 'settings'>('log')
+  const [activeTab, setActiveTab] = useState<'log' | 'weight' | 'inbody' | 'settings' | 'invite'>('log')
+
+  // Invite state (admin only)
+  const [invites, setInvites] = useState<Invite[]>(initialInvites)
+  const [inviteMaxUses, setInviteMaxUses] = useState('1')
+  const [inviteLabel, setInviteLabel] = useState('')
+  const [inviteGenerating, setInviteGenerating] = useState(false)
+  const [copiedId, setCopiedId] = useState<number | null>(null)
+
+  async function generateInvite() {
+    setInviteGenerating(true)
+    const res = await fetch('/api/invites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        maxUses: parseInt(inviteMaxUses) || 1,
+        label: inviteLabel.trim() || null,
+      }),
+    })
+    setInviteGenerating(false)
+    if (res.ok) {
+      const created: Invite = await res.json()
+      setInvites((prev) => [created, ...prev])
+      setInviteLabel('')
+    } else {
+      alert('產生失敗,請再試')
+    }
+  }
+
+  function inviteLink(code: string) {
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    return `${origin}/register?invite=${code}`
+  }
+
+  async function copyInvite(inv: Invite) {
+    try {
+      await navigator.clipboard.writeText(inviteLink(inv.code))
+      setCopiedId(inv.id)
+      setTimeout(() => setCopiedId((c) => (c === inv.id ? null : c)), 1500)
+    } catch {
+      alert(inviteLink(inv.code))
+    }
+  }
+
+  async function revokeInvite(id: number) {
+    if (!confirm('確定撤銷這組邀請碼?')) return
+    await fetch(`/api/invites/${id}`, { method: 'DELETE' })
+    setInvites((prev) => prev.filter((i) => i.id !== id))
+  }
 
   // Log form state
   const [editingLogDate, setEditingLogDate] = useState<string | null>(null)
@@ -483,6 +543,18 @@ export function AdminDashboard({
         >
           設定
         </button>
+        {isAdmin && (
+          <button
+            onClick={() => setActiveTab('invite')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'invite'
+                ? 'bg-terracotta text-cream'
+                : 'bg-paper border border-line text-ink-soft hover:text-ink'
+            }`}
+          >
+            邀請碼
+          </button>
+        )}
       </div>
 
       {activeTab === 'log' && (
@@ -937,6 +1009,91 @@ export function AdminDashboard({
             {sSaving ? '儲存中...' : '儲存設定'}
           </button>
         </form>
+      )}
+
+      {isAdmin && activeTab === 'invite' && (
+        <div className="space-y-6">
+          <div className="bg-cream border border-line rounded-lg px-4 py-3 text-sm text-ink-soft leading-relaxed">
+            本站採邀請制。產生邀請碼後,把「複製邀請連結」貼給朋友,他點連結就能直接註冊(邀請碼會自動帶入)。一組碼用完次數就失效。
+          </div>
+
+          <div className="bg-paper border border-line rounded-lg p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-ink-soft text-sm mb-2">可用次數</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={inviteMaxUses}
+                  onChange={(e) => setInviteMaxUses(e.target.value)}
+                  className="w-full bg-cream border border-line rounded-lg px-3 py-2 text-ink text-sm focus:outline-none focus:border-terracotta transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-ink-soft text-sm mb-2">備註(選填)</label>
+                <input
+                  type="text"
+                  placeholder="如:給阿明"
+                  value={inviteLabel}
+                  onChange={(e) => setInviteLabel(e.target.value)}
+                  className="w-full bg-cream border border-line rounded-lg px-3 py-2 text-ink text-sm placeholder-ink-faint focus:outline-none focus:border-terracotta transition-colors"
+                />
+              </div>
+            </div>
+            <button
+              onClick={generateInvite}
+              disabled={inviteGenerating}
+              className="w-full bg-terracotta hover:bg-terracotta/90 disabled:opacity-50 text-cream font-medium py-2.5 rounded-lg transition-colors"
+            >
+              {inviteGenerating ? '產生中...' : '+ 產生邀請碼'}
+            </button>
+          </div>
+
+          <div>
+            <h2 className="font-serif text-ink text-lg mb-4">已產生的邀請碼</h2>
+            {invites.length === 0 ? (
+              <p className="text-ink-faint text-sm">還沒有邀請碼,產生一組吧</p>
+            ) : (
+              <div className="space-y-2">
+                {invites.map((inv) => {
+                  const exhausted = inv.usedCount >= inv.maxUses
+                  return (
+                    <div
+                      key={inv.id}
+                      className="bg-paper border border-line rounded-lg px-4 py-3 flex items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-ink text-sm font-mono truncate">{inv.code}</p>
+                        <p className="text-ink-faint text-xs mt-0.5">
+                          {inv.label ? `${inv.label} · ` : ''}
+                          已用 {inv.usedCount}/{inv.maxUses}
+                          {exhausted && <span className="text-terracotta ml-1">已用完</span>}
+                        </p>
+                      </div>
+                      <div className="flex gap-3 shrink-0">
+                        {!exhausted && (
+                          <button
+                            onClick={() => copyInvite(inv)}
+                            className="text-terracotta hover:text-terracotta/80 text-xs transition-colors"
+                          >
+                            {copiedId === inv.id ? '已複製 ✓' : '複製邀請連結'}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => revokeInvite(inv.id)}
+                          className="text-ink-faint hover:text-terracotta text-xs transition-colors"
+                        >
+                          撤銷
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Log history */}

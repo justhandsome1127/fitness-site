@@ -23,6 +23,15 @@ model User {
   inbody       InBodyEntry[]
 }
 
+model InviteCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  maxUses   Int      @default(1) // 這組碼可用幾次
+  usedCount Int      @default(0) // 已被用幾次
+  label     String?            // 備註,例如「給阿明」
+  createdAt DateTime @default(now())
+}
+
 model WeightEntry {
   id        Int       @id @default(autoincrement())
   userId    Int
