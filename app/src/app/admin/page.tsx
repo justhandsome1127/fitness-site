@@ -9,15 +9,16 @@ export const dynamic = 'force-dynamic'
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
+  if (!session?.user?.id) {
     return <LoginForm />
   }
+  const userId = session.user.id
 
-  const [logs, weights, inbody, settings] = await Promise.all([
-    prisma.dailyLog.findMany({ orderBy: { date: 'desc' }, take: 30 }),
-    prisma.weightEntry.findMany({ orderBy: { dayNumber: 'desc' } }),
-    prisma.inBodyEntry.findMany({ orderBy: { date: 'desc' } }),
-    prisma.settings.findUnique({ where: { id: 1 } }),
+  const [logs, weights, inbody, user] = await Promise.all([
+    prisma.dailyLog.findMany({ where: { userId }, orderBy: { date: 'desc' }, take: 30 }),
+    prisma.weightEntry.findMany({ where: { userId }, orderBy: { dayNumber: 'desc' } }),
+    prisma.inBodyEntry.findMany({ where: { userId }, orderBy: { date: 'desc' } }),
+    prisma.user.findUnique({ where: { id: userId } }),
   ])
 
   const serializedWeights = weights.map((w) => ({
@@ -29,11 +30,11 @@ export default async function AdminPage() {
     date: w.date ? w.date.toISOString() : null,
   }))
 
-  const serializedSettings = settings
+  const serializedSettings = user
     ? {
-        startDate: settings.startDate.toISOString(),
-        goalWeight: settings.goalWeight,
-        bodyFat: settings.bodyFat,
+        startDate: user.startDate.toISOString(),
+        goalWeight: user.goalWeight,
+        bodyFat: user.bodyFat,
       }
     : null
 
@@ -52,6 +53,7 @@ export default async function AdminPage() {
 
   return (
     <AdminDashboard
+      username={session.user.username}
       initialLogs={serialized}
       initialWeights={serializedWeights}
       initialInbody={serializedInbody}

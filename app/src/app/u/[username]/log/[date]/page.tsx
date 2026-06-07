@@ -35,20 +35,18 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 export default async function LogDetailPage({
   params,
 }: {
-  params: { date: string }
+  params: { username: string; date: string }
 }) {
+  const username = params.username.toLowerCase()
+  const user = await prisma.user.findUnique({ where: { username } })
+  if (!user) notFound()
+
   const dateObj = new Date(params.date + 'T00:00:00.000Z')
   if (isNaN(dateObj.getTime())) notFound()
 
-  const log = await prisma.dailyLog.findFirst({
-    where: {
-      date: {
-        gte: dateObj,
-        lt: new Date(dateObj.getTime() + 86400000),
-      },
-    },
+  const log = await prisma.dailyLog.findUnique({
+    where: { userId_date: { userId: user.id, date: dateObj } },
   })
-
   if (!log) notFound()
 
   const exercises = log.exercises as Exercise[] | null
@@ -74,7 +72,7 @@ export default async function LogDetailPage({
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <Link
-        href="/log"
+        href={`/u/${user.username}/log`}
         className="text-ink-soft hover:text-ink text-sm mb-6 inline-flex items-center gap-1 transition-colors"
       >
         ← 返回日誌列表
@@ -210,9 +208,7 @@ export default async function LogDetailPage({
       )}
 
       {!exercises?.length && !diet?.length && !log.dietNote && !log.bodyNote && log.photos.length === 0 && (
-        <div className="text-center py-16 text-ink-faint">
-          這天還沒有記錄內容
-        </div>
+        <div className="text-center py-16 text-ink-faint">這天還沒有記錄內容</div>
       )}
     </div>
   )

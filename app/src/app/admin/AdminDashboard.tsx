@@ -74,11 +74,13 @@ const emptyDietItem = (meal: string = MEAL_OPTIONS[0]): DietFormItem => ({
 const DEFAULT_START = '2026-03-17T00:00:00.000Z'
 
 export function AdminDashboard({
+  username,
   initialLogs,
   initialWeights,
   initialInbody,
   initialSettings,
 }: {
+  username: string
   initialLogs: Log[]
   initialWeights: WeightRow[]
   initialInbody: InBodyRow[]
@@ -958,7 +960,7 @@ export function AdminDashboard({
                 </div>
                 <div className="flex gap-3">
                   <a
-                    href={`/log/${log.date.slice(0, 10)}`}
+                    href={`/u/${username}/log/${log.date.slice(0, 10)}`}
                     className="text-terracotta hover:text-terracotta/80 text-xs transition-colors"
                   >
                     查看

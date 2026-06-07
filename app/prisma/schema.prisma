@@ -8,37 +8,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           Int           @id @default(autoincrement())
+  username     String        @unique          // 一律小寫,^[a-z0-9_]{3,20}$
+  displayName  String                         // 顯示名稱
+  passwordHash String
+  role         String        @default("user") // user | admin
+  startDate    DateTime      @db.Date         // 個人 Day 1(把日期換算成 Day N)
+  goalWeight   Float?                         // 目標體重
+  bodyFat      Float?                         // 目前體脂手動值;留空則前台帶最新 InBody
+  createdAt    DateTime      @default(now())
+  weights      WeightEntry[]
+  logs         DailyLog[]
+  inbody       InBodyEntry[]
+}
+
 model WeightEntry {
   id        Int       @id @default(autoincrement())
-  dayNumber Int       @unique
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayNumber Int
   weight    Float
   note      String?
   type      String    @default("normal") // normal | break | bulk
   date      DateTime?
-}
 
-model Settings {
-  id         Int      @id @default(1) // 永遠只有一列
-  startDate  DateTime @db.Date        // Day 1 的日期(用來把日期換算成 Day N)
-  goalWeight Float?                   // 目標體重
-  bodyFat    Float?                   // 目前體脂手動值;留空則前台帶最新 InBody
-  updatedAt  DateTime @updatedAt
+  @@unique([userId, dayNumber])
 }
 
 model InBodyEntry {
   id             Int      @id @default(autoincrement())
-  date           DateTime @unique @db.Date
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date           DateTime @db.Date
   weight         Float?   // 體重 kg
   bodyFat        Float    // 體脂率 %
   muscle         Float    // 骨骼肌重 kg
   visceral       Float    // 內臟脂肪等級
   note           String?
   createdAt      DateTime @default(now())
+
+  @@unique([userId, date])
 }
 
 model DailyLog {
   id        Int      @id @default(autoincrement())
-  date      DateTime @unique @db.Date
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
   exercises Json?
   diet      Json?
   dietNote  String?
@@ -46,4 +63,6 @@ model DailyLog {
   photos    String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
 }

@@ -26,14 +26,14 @@ type Log = {
   photos: string[]
 }
 
-export function LogCard({ log }: { log: Log }) {
+export function LogCard({ log, username }: { log: Log; username: string }) {
   const date = new Date(log.date)
   const dateStr = format(date, 'yyyy-MM-dd')
   const displayDate = format(date, 'M月d日 EEEE', { locale: zhTW })
   const exerciseCount = log.exercises?.length ?? 0
 
   return (
-    <Link href={`/log/${dateStr}`}>
+    <Link href={`/u/${username}/log/${dateStr}`}>
       <div className="bg-paper border border-line hover:border-terracotta-soft rounded-lg p-4 transition-colors shadow-[0_1px_2px_rgba(43,39,35,0.04)] group">
         <div className="flex items-start justify-between mb-3">
           <div>

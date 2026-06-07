@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { requireUserId } from '@/lib/session'
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = await requireUserId(request)
+  if ('error' in auth) return auth.error
 
+  const id = parseInt(params.id)
+  if (!Number.isInteger(id)) {
+    return NextResponse.json({ error: '參數無效' }, { status: 400 })
+  }
+
+  // userId 條件確保只能刪自己的(防 IDOR)
   await prisma.inBodyEntry.deleteMany({
-    where: { id: parseInt(params.id) },
+    where: { id, userId: auth.userId },
   })
   return NextResponse.json({ ok: true })
 }
