@@ -21,9 +21,9 @@ export type WeightPoint = {
 }
 
 const DOT_COLORS: Record<string, string> = {
-  normal: '#bf6a4e', // 減脂期 — 赤陶
-  break: '#caa24a', // 放縱日 — 芥末
-  bulk: '#7a8450', // 增肌期 — 橄欖
+  normal: '#5a8f6e', // 減脂期 — 鼠尾草綠(冷色,代表自律)
+  break: '#d83a34', // 放縱日 — 正紅(暖色強調,警示)
+  bulk: '#c8842a', // 增肌期 — 琥珀橙
 }
 
 function CustomDot(props: {
@@ -33,12 +33,26 @@ function CustomDot(props: {
 }) {
   const { cx, cy, payload } = props
   if (cx == null || cy == null || !payload) return null
-  const color = DOT_COLORS[payload.type] ?? '#bf6a4e'
+  const color = DOT_COLORS[payload.type] ?? '#5a8f6e'
+
+  // 放縱日:放大的菱形,即使點很小也能一眼區隔
+  if (payload.type === 'break') {
+    const s = 5.5
+    return (
+      <polygon
+        points={`${cx},${cy - s} ${cx + s},${cy} ${cx},${cy + s} ${cx - s},${cy}`}
+        fill={color}
+        stroke="#faf7f0"
+        strokeWidth={1.5}
+      />
+    )
+  }
+
   return (
     <circle
       cx={cx}
       cy={cy}
-      r={3}
+      r={3.5}
       fill={color}
       stroke="#faf7f0"
       strokeWidth={1}
@@ -57,13 +71,20 @@ function CustomTooltip({
   const d = payload[0].payload
   const typeLabel =
     d.type === 'break' ? '放縱日' : d.type === 'bulk' ? '增肌期' : '減脂期'
-  const typeColor = DOT_COLORS[d.type] ?? '#bf6a4e'
+  const typeColor = DOT_COLORS[d.type] ?? '#5a8f6e'
   return (
     <div className="bg-paper border border-line rounded-lg p-3 text-sm shadow-md">
       <p className="text-ink-soft text-xs">Day {d.day} · {d.dateStr}</p>
       <p className="font-serif text-ink text-lg">{d.weight} kg</p>
       <p className="flex items-center gap-1.5 text-ink-soft text-xs mt-1">
-        <span className="inline-block w-2 h-2 rounded-full" style={{ background: typeColor }} />
+        <span
+          className="inline-block w-2.5 h-2.5"
+          style={{
+            background: typeColor,
+            borderRadius: d.type === 'break' ? 0 : '9999px',
+            transform: d.type === 'break' ? 'rotate(45deg)' : undefined,
+          }}
+        />
         {typeLabel}
       </p>
     </div>
@@ -149,15 +170,15 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
 
       <div className="flex items-center gap-5 mt-3 px-2">
         <span className="flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="inline-block w-3 h-3 rounded-full bg-terracotta" />
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: DOT_COLORS.normal }} />
           減脂期
         </span>
         <span className="flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="inline-block w-3 h-3 rounded-full bg-mustard" />
+          <span className="inline-block w-3 h-3" style={{ background: DOT_COLORS.break, transform: 'rotate(45deg)' }} />
           放縱日
         </span>
         <span className="flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="inline-block w-3 h-3 rounded-full bg-olive" />
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: DOT_COLORS.bulk }} />
           增肌期
         </span>
         <span className="ml-auto text-xs text-ink-faint">← 左右滑動查看完整紀錄</span>

@@ -6,3 +6,8 @@ app/public/uploads/*
 !app/public/uploads/.gitkeep
 
 .claude/
+
+# Next.js 自動產生
+app/next-env.d.ts
+# dev 容器 npm install 產物(專案用 npm install 不追 lock)
+app/package-lock.json
